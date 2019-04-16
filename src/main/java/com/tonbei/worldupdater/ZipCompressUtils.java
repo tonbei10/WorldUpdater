@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipOutputStream;
 
@@ -34,6 +35,7 @@ public class ZipCompressUtils {
             archive(outZip, baseFile, file);
         } catch ( Exception e ) {
             // ZIP圧縮失敗
+        	e.printStackTrace();
             return false;
         } finally {
             // ZIPエントリクローズ
@@ -139,6 +141,7 @@ public class ZipCompressUtils {
             outZip.closeEntry();
         } catch ( Exception e ) {
             // ZIP圧縮失敗
+        	e.printStackTrace();
             return false;
         }
         return true;

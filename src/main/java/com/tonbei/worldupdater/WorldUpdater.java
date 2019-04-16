@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,11 +65,6 @@ public class WorldUpdater {
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd' 'HH':'mm':'ss");
 
 	private static String folderId, jar, bat, map, fileDate;
-
-	//TODO
-	//private static final String UPLOAD_FILE_PATH = "C:\\Users\\とんかつ\\Desktop\\fgftgf.txt";
-	//private static final String DIR_FOR_DOWNLOADS = "C:\\Users\\とんかつ\\Desktop\\test";
-	//private static final java.io.File UPLOAD_FILE = new java.io.File(UPLOAD_FILE_PATH);
 
 	/** Directory to store user credentials. */
 	private static final java.io.File DATA_STORE_DIR =
@@ -132,9 +128,11 @@ public class WorldUpdater {
 			if(!config.exists()) {
 				firstsetup = true;
 				View.header1("Initial setting");
-				System.out.println("データを保存するフォルダのURLを入力してください。");
+
 				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-				folderId = br.readLine().substring(br.readLine().lastIndexOf("/"));
+				System.out.println("データを保存するフォルダのURLを入力してください。");
+				String url = br.readLine();
+				folderId = url.substring(url.lastIndexOf("/") + 1);
 				System.out.println("Serverファイル(jarファイル)を選択してください。");
 				jar = FileSelectDialog.OpenJarSelectDialog(path.getParent().toFile()).getAbsolutePath();
 				System.out.println("Server起動ファイル(batファイル)を選択してください。");
@@ -145,31 +143,23 @@ public class WorldUpdater {
 				fileDate = sdf.format(new Date());
 
 				BufferedWriter writer = new BufferedWriter(new FileWriter(config));
-				writer.write(folderId);
-				writer.newLine();
-				writer.write(jar);
-				writer.newLine();
-				writer.write(bat);
-				writer.newLine();
-				writer.write(map);
-				writer.newLine();
-				writer.write(fileDate);
+				writer.write(folderId + ":" + jar + ":" + bat + ":" + map + ":" + fileDate);
 				writer.close();
 			}else {
+				View.header1("Config loading");
 				BufferedReader reader = new BufferedReader(new FileReader(config));
-				List<String> data = new ArrayList<>();
-				while (reader.readLine() != null) data.add(reader.readLine());
-				folderId = data.get(0);
-				jar = data.get(1);
-				bat = data.get(2);
-				map = data.get(3);
-				fileDate = data.get(4);
+				String[] data = reader.readLine().split(":");
+				folderId = data[0];
+				jar = data[1];
+				bat = data[2];
+				map = data[3];
+				fileDate = data[4];
 				reader.close();
 			}
 
 			View.header1("Checking for the latest updates");//TODO
 
-			List<File> zipfile = new ArrayList<>();
+			List<File> zipFiles = new ArrayList<>();
 			String pageToken = null;
 			do {
 				FileList result = drive.files().list()
@@ -180,15 +170,15 @@ public class WorldUpdater {
 						.execute();
 				for (File file : result.getFiles()) {
 					System.out.printf("Found file: %s (%s)\n", file.getName(), file.getId());
-					if(file.getName().endsWith(".zip")) zipfile.add(file);
+					if(file.getName().endsWith(".zip")) zipFiles.add(file);
 				}
 				pageToken = result.getNextPageToken();
 			} while (pageToken != null);
 
 			File latest = null;
-			if(!zipfile.isEmpty()) {
-				Date date = sdf.parse(zipfile.get(0).getName().replace(".zip", ""));
-				for(File file : zipfile) {
+			if(!zipFiles.isEmpty()) {
+				Date date = sdf.parse(zipFiles.get(0).getName().replace(".zip", ""));
+				for(File file : zipFiles) {
 					if(date.before(sdf.parse(file.getName().replace(".zip", "")))) {
 						latest = file;
 						date = sdf.parse(file.getName().replace(".zip", ""));
@@ -203,10 +193,13 @@ public class WorldUpdater {
 					System.out.println("最新版をアップロード→y : アップロードせずに最新版をダウンロード→n");
 					start : if(true) {
 						BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-						if(br.readLine().equals("y")) {
+						String ans = br.readLine();
+						if(ans.equals("y")) {
 							//TODO アップロード
-						}else if(br.readLine().equals("n")) {
+							upload(zipFiles);
+						}else if(ans.equals("n")) {
 							//TODO ダウンロード
+							download(latest);
 						}else {
 							break start;
 						}
@@ -219,11 +212,11 @@ public class WorldUpdater {
 					case 0://何もしない
 
 						break;
-					case 1://アップロード + driveからファイル削除
-						//TODO
+					case 1://TODO アップロード + driveからファイル削除
+						upload(zipFiles);
 						break;
-					case -1://ダウンロード
-						//TODO
+					case -1://TODO ダウンロード
+						download(latest);
 						break;
 					}
 				}
@@ -232,6 +225,7 @@ public class WorldUpdater {
 			if(latest == null) {
 				System.out.println("Drive上にデータがアップロードされていないため、現在のマップデータを最新版としてアップロードします。");
 				//TODO アップロード
+				upload(zipFiles);
 			}
 
 			View.header1("Starting Server");
@@ -240,23 +234,8 @@ public class WorldUpdater {
 
 			View.header1("Starting Upload");
 			//TODO アップロード + fileDate更新
+			upload(zipFiles);
 
-/*
-			View.header1("Starting Resumable Media Upload");
-			File uploadedFile = uploadFile(false);
-
-			View.header1("Updating Uploaded File Name");
-			File updatedFile = updateFileWithTestSuffix(uploadedFile.getId());
-
-			View.header1("Starting Resumable Media Download");
-			downloadFile(false, updatedFile);
-
-			View.header1("Starting Simple Media Upload");
-			uploadedFile = uploadFile(true);
-
-			View.header1("Starting Simple Media Download");
-			downloadFile(true, uploadedFile);
-*/
 			View.header1("Success!");
 			return;
 		} catch (IOException e) {
@@ -336,17 +315,39 @@ public class WorldUpdater {
 		}
 	}
 
-	public static File upload() throws URISyntaxException, IOException {
+	public static void upload(List<File> files) throws URISyntaxException, IOException, ParseException {
 		java.io.File parentDir = new java.io.File(getApplicationPath(WorldUpdater.class).getParent().toFile(), "temp");
 		if (!parentDir.exists() && !parentDir.mkdirs()) {
 			throw new IOException("Unable to create parent directory");
 		}
 
-		java.io.File zip = new java.io.File(parentDir, sdf.format(new Date()) + ".zip");
-		ZipCompressUtils.compressDirectory(zip.getAbsolutePath(), map);
-		File upFile = uploadFile(false, zip);
-		zip.delete();
-		return upFile;
+		fileDate = sdf.format(new Date());
+
+		File oldest = null;
+		if(!files.isEmpty()) {
+			Date date = sdf.parse(files.get(0).getName().replace(".zip", ""));
+			for(File file : files) {
+				if(date.after(sdf.parse(file.getName().replace(".zip", "")))) {
+					oldest = file;
+					date = sdf.parse(file.getName().replace(".zip", ""));
+				}
+			}
+		}
+
+		if(oldest != null && files.size() >= 5)
+			drive.files().delete(oldest.getId());
+
+		java.io.File zip = new java.io.File(parentDir, fileDate + ".zip");
+		System.out.println(ZipCompressUtils.compressDirectory(zip.getAbsolutePath(), map));
+//		File upFile = uploadFile(false, zip);
+//		zip.delete();
+
+		java.io.File config = new java.io.File(getApplicationPath(WorldUpdater.class).getParent().toFile(), "WorldUpdater.cfg");
+		BufferedWriter writer = new BufferedWriter(new FileWriter(config));
+		writer.write(folderId + ":" + jar + ":" + bat + ":" + map + ":" + fileDate);
+		writer.close();
+
+//		return upFile;
 	}
 
 	public static void download(File dlFile) throws URISyntaxException, IOException {
