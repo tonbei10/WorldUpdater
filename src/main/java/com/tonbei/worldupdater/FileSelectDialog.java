@@ -32,6 +32,7 @@ public class FileSelectDialog {
 	@Nullable
 	public static File OpenMapSelectDialog(File dir) {
 		// Initializes JavaFX environment
+		@SuppressWarnings("unused")
 		JFXPanel jfxPanel = new JFXPanel();
 		currentFile = null;
 
@@ -61,6 +62,7 @@ public class FileSelectDialog {
 	@Nullable
 	public static File OpenSelectDialog(String title, File dir, FileChooser.ExtensionFilter... filters) {
 		// Initializes JavaFX environment
+		@SuppressWarnings("unused")
 		JFXPanel jfxPanel = new JFXPanel();
 		currentFile = null;
 

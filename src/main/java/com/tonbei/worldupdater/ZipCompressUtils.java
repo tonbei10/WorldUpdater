@@ -1,13 +1,14 @@
 package com.tonbei.worldupdater;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-
-import org.apache.tools.zip.ZipEntry;
-import org.apache.tools.zip.ZipOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * ZipCompressUtils は、ZIP 圧縮をおこなう上で利便性の高い機能を提供します。
@@ -31,7 +32,7 @@ public class ZipCompressUtils {
         ZipOutputStream outZip = null;
         try {
             // ZIPファイル出力オブジェクト作成
-            outZip = new ZipOutputStream(new FileOutputStream(baseFile));
+            outZip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(baseFile)), Charset.forName("Shift-JIS"));
             archive(outZip, baseFile, file);
         } catch ( Exception e ) {
             // ZIP圧縮失敗
@@ -62,12 +63,12 @@ public class ZipCompressUtils {
         File baseFile = new File(filePath);
         try {
             // ZIPファイル出力オブジェクト作成
-            outZip = new ZipOutputStream(new FileOutputStream(baseFile));
+            outZip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(baseFile)), Charset.forName("Shift-JIS"));
             // 圧縮ファイルリストのファイルを連続圧縮
             for ( int i = 0 ; i < fileList.size() ; i++ ) {
                 // ファイルオブジェクト作成
                 File file = new File((String)fileList.get(i));
-                archive(outZip, baseFile, file, file.getName(), "Shift_JIS");
+                archive(outZip, baseFile, file, file.getName());
             }
         } catch ( Exception e ) {
             // ZIP圧縮失敗
@@ -99,7 +100,7 @@ public class ZipCompressUtils {
                 } else {
                     if ( !f.getAbsoluteFile().equals(baseFile)  ) {
                         // 圧縮処理
-                        archive(outZip, baseFile, f, f.getAbsolutePath().replace(baseFile.getParent(), "").substring(1), "Shift_JIS");
+                        archive(outZip, baseFile, f, f.getName());
                     }
                 }
             }
@@ -113,14 +114,11 @@ public class ZipCompressUtils {
      * @param baseFile File 保存先ファイル
      * @param targetFile File 圧縮したいファイル
      * @parma entryName 保存ファイル名
-     * @param enc 文字コード
      */
-    private static boolean archive(ZipOutputStream outZip, File baseFile, File targetFile, String entryName, String enc) {
+    private static boolean archive(ZipOutputStream outZip, File baseFile, File targetFile, String entryName) {
         // 圧縮レベル設定
         outZip.setLevel(5);
 
-        // 文字コードを指定
-        outZip.setEncoding(enc);
         try {
 
             // ZIPエントリ作成

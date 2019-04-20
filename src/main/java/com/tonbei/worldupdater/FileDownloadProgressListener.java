@@ -10,6 +10,7 @@ import com.google.api.client.googleapis.media.MediaHttpDownloaderProgressListene
  */
 public class FileDownloadProgressListener implements MediaHttpDownloaderProgressListener {
 
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void progressChanged(MediaHttpDownloader downloader) {
 		switch (downloader.getDownloadState()) {

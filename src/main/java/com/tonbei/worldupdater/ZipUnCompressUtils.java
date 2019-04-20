@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -33,7 +34,7 @@ public class ZipUnCompressUtils {
         ZipFile zipFile = null;
         try {
             // ZIPファイルオブジェクト作成
-            zipFile = new ZipFile(zipFileFullPath);
+            zipFile = new ZipFile(zipFileFullPath, Charset.forName("Shift-JIS"));
 
             // ZIPファイル内のファイルを列挙
             Enumeration<? extends ZipEntry>  enumZip = zipFile.entries();
