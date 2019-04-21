@@ -40,3 +40,15 @@ dependencies {
     compile 'com.google.apis:google-api-services-drive:v3-rev110-1.23.0'
 }
 
+jar {
+  manifest {
+    attributes 'Implementation-Title': 'WorldUpdater', 'Implementation-Version': 0.1
+    attributes "Main-Class" : "com.tonbei.worldupdater.WorldUpdater"
+  }
+
+  from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+}
+
+def defaultEncoding = 'UTF-8'
+[compileJava, compileTestJava]*.options*.encoding = defaultEncoding
+

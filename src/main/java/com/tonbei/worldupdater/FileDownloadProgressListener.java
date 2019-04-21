@@ -4,9 +4,7 @@ import com.google.api.client.googleapis.media.MediaHttpDownloader;
 import com.google.api.client.googleapis.media.MediaHttpDownloaderProgressListener;
 
 /**
- * The File Download Progress Listener.
- *
- * @author rmistry@google.com (Ravi)
+ * Based code : https://github.com/google/google-api-java-client-samples/blob/master/drive-cmdline-sample/src/main/java/com/google/api/services/samples/drive/cmdline/FileDownloadProgressListener.java
  */
 public class FileDownloadProgressListener implements MediaHttpDownloaderProgressListener {
 

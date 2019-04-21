@@ -11,10 +11,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * ZipCompressUtils は、ZIP 圧縮をおこなう上で利便性の高い機能を提供します。
- *
- * @author saka-en.
- * @version $Revision: 1.0 $ $Date: 2013.10.24 $ $Description: 新規作成 $
+ * Based code : https://www.saka-en.com/java/java-zip-compress/
  */
 public class ZipCompressUtils {
 
@@ -72,6 +69,7 @@ public class ZipCompressUtils {
             }
         } catch ( Exception e ) {
             // ZIP圧縮失敗
+        	e.printStackTrace();
             return false;
         } finally {
             // ZIPエントリクローズ

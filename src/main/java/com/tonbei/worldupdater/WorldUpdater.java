@@ -6,8 +6,10 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -43,24 +45,10 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
 /**
- * A sample application that runs multiple requests against the Drive API. The requests this sample
- * makes are:
- * <ul>
- * <li>Does a resumable media upload</li>
- * <li>Updates the uploaded file by renaming it</li>
- * <li>Does a resumable media download</li>
- * <li>Does a direct media upload</li>
- * <li>Does a direct media download</li>
- * </ul>
- *
- * @author rmistry@google.com (Ravi Mistry)
+ * Based code : https://github.com/google/google-api-java-client-samples/blob/master/drive-cmdline-sample/src/main/java/com/google/api/services/samples/drive/cmdline/DriveSample.java
  */
 public class WorldUpdater {
 
-	/**
-	 * Be sure to specify the name of your application. If the application name is {@code null} or
-	 * blank, the application will log a warning. Suggested format is "MyCompany-ProductName/1.0".
-	 */
 	private static final String APPLICATION_NAME = "WorldUpdater";
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd'-'HH'-'mm'-'ss");
 
@@ -211,9 +199,46 @@ public class WorldUpdater {
 				upload();
 			}
 
-			View.header1("Starting Server");//TODO
+			View.header1("Starting Server");
 			System.out.println("サーバー起動中はこのウィンドウを閉じないでください。");
 
+			ProcessBuilder pb = new ProcessBuilder(bat);
+			pb.redirectErrorStream(true);  // 標準エラー出力の内容を標準出力にマージする
+
+			Process process;
+			try {
+				process = pb.start();
+			} catch (IOException e) {
+				throw e;
+			}
+
+			int exitCode;
+			try {
+				// 標準出力をすべて読み込む
+				new Thread(() -> {
+					try (InputStream is = process.getInputStream()) {
+						while (is.read() >= 0);
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
+					}
+				}).start();
+
+				process.waitFor();
+				exitCode = process.exitValue();
+
+			} catch (InterruptedException e) {
+				throw e;
+			} finally {
+				if (process.isAlive()) {
+					process.destroy(); // プロセスを強制終了
+				}
+			}
+
+			if(exitCode != 0) {
+				System.out.println("異常終了しました。");
+				System.out.println("Driveへのアップロードをスキップします。");
+				throw new RuntimeException("Abend detection.");
+			}
 
 			View.header1("Starting Upload");
 			upload();
@@ -229,7 +254,7 @@ public class WorldUpdater {
 		System.exit(1);
 	}
 
-		/** Uploads a file using either resumable or direct media upload. */
+	/** Uploads a file using either resumable or direct media upload. */
 	private static File uploadFile(boolean useDirectUpload, java.io.File uploadFile) throws IOException {
 		File fileMetadata = new File();
 		fileMetadata.setName(uploadFile.getName());
@@ -350,8 +375,6 @@ public class WorldUpdater {
 		java.io.File mapDir = new java.io.File(map);
 		deleteDir(mapDir);
 		ZipUnCompressUtils.unzip(dlf.getAbsolutePath(), mapDir.getParent(), mapDir.getName());
-
-		//TODO コンパイル後、実行しても削除されなかったらdeleteOnExit()に変更
 		dlf.delete();
 
 		deleteDir(parentDir);

@@ -7,9 +7,7 @@ import com.google.api.client.googleapis.media.MediaHttpUploader;
 import com.google.api.client.googleapis.media.MediaHttpUploaderProgressListener;
 
 /**
- * The File Upload Progress Listener.
- *
- * @author rmistry@google.com (Ravi)
+ * Based code : https://github.com/google/google-api-java-client-samples/blob/master/drive-cmdline-sample/src/main/java/com/google/api/services/samples/drive/cmdline/FileUploadProgressListener.java
  */
 public class FileUploadProgressListener implements MediaHttpUploaderProgressListener {
 

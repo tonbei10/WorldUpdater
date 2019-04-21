@@ -1,9 +1,7 @@
 package com.tonbei.worldupdater;
 
 /**
- * Utility methods to print to the command line.
- *
- * @author rmistry@google.com (Ravi Mistry)
+ * Based code : https://github.com/google/google-api-java-client-samples/blob/master/drive-cmdline-sample/src/main/java/com/google/api/services/samples/drive/cmdline/View.java
  */
 public class View {
 

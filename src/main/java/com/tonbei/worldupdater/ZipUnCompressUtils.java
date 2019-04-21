@@ -10,10 +10,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * <p><strong>ZipUnCompressUtils</strong>は、 ZIP 解凍をおこなう上で利便性の高い機能を提供します。</p>
- *
- * @author Sakakibara Engineering Office.
- * @version $Revision: 1.0 $ $Date: 2013.11.07 $ $Description: 新規作成 $
+ * Based code : https://www.saka-en.com/java/java-zip-uncompress/
  */
 public class ZipUnCompressUtils {
 
@@ -84,7 +81,7 @@ public class ZipUnCompressUtils {
             return false;
         } finally {
             if ( zipFile != null )
-                try { zipFile.close();    } catch (Exception e) {}
+                try { zipFile.close(); } catch (Exception e) {}
         }
     }
 }
