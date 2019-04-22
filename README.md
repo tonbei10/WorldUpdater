@@ -21,3 +21,8 @@ pause</br>
 ----------共有フォルダの設定----------</br>
 マップを保存するDriveの共有フォルダは「リンクを知っている全員が編集可」に設定してください。</br>
 </br>
+</br>
+DOWNLOAD(動作確認が完了していないので必ず手動でのマップフォルダのバックアップも行ってください。)</br>
+https://github.com/tonbei10/WorldUpdater/releases/download/v0.1/WorldUpdater-0.1.jar </br>
+</br>
+バグがあれば多分修正します。
